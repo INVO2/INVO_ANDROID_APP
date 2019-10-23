@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="560dp"
+    android:background="#00000000"
+    android:orientation="vertical"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="70dp"
+    app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/radius"
+            android:src="@drawable/baseline_keyboard_arrow_up_black_18dp"
+            android:contentDescription="@string/app_name" />
+
+    <FrameLayout
+        android:id="@+id/fragment_conteiner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff">
+
+
+    </FrameLayout>
+
+
+
+
+
+    </LinearLayout>

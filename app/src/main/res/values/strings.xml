@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">invo</string>
+    <string name="bottom_nav_search">Navigation</string>
+    <string name="bottom_nav_map">Map</string>
+    <string name="bottom_nav_account">Account</string>
+    <string name="bottom_nav_list">List</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="butMash">Кнопки масштаба</string>
+    <string name="about">Проект был разработан учащимися Минского радиотехнического колледжа (Деркач Д., Корпеко В., Купава А. Сандрозд В.) при поддержке преподавателя (Виничук О.Н.).</string>
+    <string name="maps">Карта</string>
+    <string name="list">list_preference_1</string>
+    <string name="vid">Вид карты</string>
+    <string name="vib">Выбирите тип карты</string>
+    <string name="aboutfr">О приложении</string>
+    <string name="Pharmacy">Pharmacy</string>
+
+
+    <string-array name="organizationTypes1">
+        <item name="1">Схема</item>
+        <item name="2">Гибрид</item>
+        <item name="3">Спутник</item>
+    </string-array>
+
+</resources>

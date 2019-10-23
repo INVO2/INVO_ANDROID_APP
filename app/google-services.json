@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "38744101667",
+    "firebase_url": "https://invo-1558967199369.firebaseio.com",
+    "project_id": "invo-1558967199369",
+    "storage_bucket": "invo-1558967199369.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38744101667:android:255fb4143220900a",
+        "android_client_info": {
+          "package_name": "com.example.invo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "38744101667-rgdjp05jpc551h0fmojk6ms5rpsk66of.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDZ01Qj7v8d1N1PAIbLl7CEkehLRhxWlM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "38744101667-rgdjp05jpc551h0fmojk6ms5rpsk66of.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
