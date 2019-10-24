@@ -1,24 +1,23 @@
 package com.example.invo.Fragments;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.invo.MainActivity;
 import com.example.invo.Parsing.Retrofit.Interface.RecyclerInterface;
 import com.example.invo.Parsing.Retrofit.ModelRecycler;
 import com.example.invo.Parsing.Retrofit.RetrofitAdapter;
 import com.example.invo.R;
-import com.example.invo.latLong;
+import com.example.invo.Interface.latLong;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,14 +32,15 @@ import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 
-public class PharmacyFragment extends android.app.Fragment{
+public class PharmacyFragment extends Fragment {
 
     public latLong mDataPasser;
-    private ArrayList<String> lat,longi;
+    private ArrayList<String> scrImg,lat,longi,address,name;
     public ArrayList<ModelRecycler> modelRecyclerArrayList;
     MainActivity mainActivity;
     private RecyclerView recyclerView;
     private RetrofitAdapter retrofitAdapter;
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -105,6 +105,10 @@ public class PharmacyFragment extends android.app.Fragment{
 
             lat = new ArrayList<>();
             longi= new ArrayList<>();
+            scrImg=new ArrayList<>();
+            name=new ArrayList<>();
+            address=new ArrayList<>();
+
             modelRecyclerArrayList = new ArrayList<>();
             JSONArray dataArray  = obj.getJSONArray("items");
 
@@ -113,12 +117,17 @@ public class PharmacyFragment extends android.app.Fragment{
                 ModelRecycler modelRecycler = new ModelRecycler();
                 JSONObject dataobj = dataArray.getJSONObject(i);
 
+                modelRecycler.setPhone(dataobj.getString("phone"));
+                modelRecycler.setSite(dataobj.getString("detailHref"));
                 modelRecycler.setImgURL(dataobj.getString("scrImg"));
                 modelRecycler.setName(dataobj.getString("name"));
                 modelRecycler.setCountry(dataobj.getString("address"));
                 modelRecycler.setLatti(dataobj.getString("lat"));
                 modelRecycler.setLongi(dataobj.getString("long"));
 
+                scrImg.add(dataobj.getString("lat"));
+                name.add(dataobj.getString("lat"));
+                address.add(dataobj.getString("lat"));
                 lat.add(dataobj.getString("lat"));
                 longi.add(dataobj.getString("long"));
 
@@ -126,8 +135,13 @@ public class PharmacyFragment extends android.app.Fragment{
 
             }
 
-            mDataPasser.seeee(lat,longi);
 //            Toast.makeText(getActivity(),mainActivity.phLatti.get(1),Toast.LENGTH_SHORT).show();
+
+
+
+
+            mDataPasser.seeee(lat,longi,modelRecyclerArrayList);
+
 
             retrofitAdapter = new RetrofitAdapter(getActivity(),modelRecyclerArrayList);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.VERTICAL, false));
@@ -155,6 +169,7 @@ public class PharmacyFragment extends android.app.Fragment{
     public void onAttach(Activity a) {
         super.onAttach(a);
         mDataPasser = (latLong) a;
+
     }
 
 

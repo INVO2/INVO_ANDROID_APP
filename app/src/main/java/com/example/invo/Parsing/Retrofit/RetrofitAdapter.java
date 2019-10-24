@@ -41,7 +41,7 @@ public class RetrofitAdapter extends RecyclerView.Adapter<RetrofitAdapter.MyView
     @Override
     public void onBindViewHolder(RetrofitAdapter.MyViewHolder holder, int position) {
 
-        Picasso.get().load(dataModelArrayList.get(position).getImgURL()).into(holder.iv);
+        Picasso.get().load(dataModelArrayList.get(position).getImgURL()).error(R.drawable.error_pharmacy).fit().centerCrop().into(holder.iv);
         holder.name.setText(dataModelArrayList.get(position).getName());
         holder.country.setText(dataModelArrayList.get(position).getCountry());
 

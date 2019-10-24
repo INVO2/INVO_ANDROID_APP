@@ -2,6 +2,7 @@ package com.example.invo;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -17,8 +18,11 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 
-import com.example.invo.Fragments.PharmacyFragment;
+import com.example.invo.Direction.Dijkstra;
+import com.example.invo.Fragments.BottomSheetFragment;
+import com.example.invo.Interface.ButtonPressInterface;
 import com.example.invo.Interface.Coordinates;
+import com.example.invo.Interface.latLong;
 import com.example.invo.Parsing.Retrofit.ModelRecycler;
 import com.example.invo.Parsing.Retrofit.RetrofitAdapter;
 import com.google.android.gms.maps.CameraUpdate;
@@ -46,12 +50,13 @@ import com.example.invo.Fragments.SettingsFragment;
 
 
 
-public class MainActivity extends AppCompatActivity implements latLong, RetrofitAdapter.OnItemClickListener, OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener, Coordinates {
+public class MainActivity extends AppCompatActivity implements ButtonPressInterface,latLong, RetrofitAdapter.OnItemClickListener, OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener, Coordinates {
 
     public ArrayList<String> phLatti, phLongi;
     public int cords;
     public View bottomShet;
     public BottomSheetBehavior bottomSheetBehavior;
+    public ArrayList<ModelRecycler> modelRecyclerArrayList;
     public MapView mMapView;
     public GoogleMap gMap;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
@@ -75,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements latLong, Retrofit
     FloatingActionButton plusFab;
     public int position;
     FloatingActionButton dorectionFab;
+    BottomSheetFragment bottomSheetFragment;
+    private FragmentManager fragmentManager;
+    com.google.android.gms.maps.model.LatLng minsk;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -96,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements latLong, Retrofit
         navigationFab = (FloatingActionButton) findViewById(R.id.fab2);
         minusFab = (FloatingActionButton) findViewById(R.id.fab3);
         plusFab = (FloatingActionButton) findViewById(R.id.fab4);
-        btnProv = findViewById(R.id.btnProv);
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         dorectionFab.setVisibility(View.INVISIBLE);
 
@@ -251,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements latLong, Retrofit
         dorectionFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minsk, 11));
                 googleMap.clear();
                 getLocation();
                 setPreCoordinates();
@@ -321,9 +330,9 @@ public class MainActivity extends AppCompatActivity implements latLong, Retrofit
         googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
 
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onMapClick(LatLng latLng) {
+            public void onMapLongClick(LatLng latLng) {
 
                 // Creating a marker
                 MarkerOptions markerOptions = new MarkerOptions();
@@ -344,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements latLong, Retrofit
 
 
                 } else
-                    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     getLocation();
                 }
                 // Animating to the touched position
@@ -366,17 +375,20 @@ public class MainActivity extends AppCompatActivity implements latLong, Retrofit
                     }
                 });
             }
+            });
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                googleMap.clear();
+            }
         });
-
-
-
 
 
 
 
         googleMap.addMarker(new MarkerOptions().position(new com.google.android.gms.maps.model.LatLng(52.953847, 27.064607)).title(" Гараж моего внедорожника"));
         //googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-        com.google.android.gms.maps.model.LatLng minsk = new com.google.android.gms.maps.model.LatLng(53.902016, 27.559901);
+       minsk = new com.google.android.gms.maps.model.LatLng(53.902016, 27.559901);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(minsk, 11));
         navigationFab.setOnClickListener(new View.OnClickListener() {
 
@@ -530,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements latLong, Retrofit
 
     private void setLine(GoogleMap googleMap){
         PolylineOptions line = new PolylineOptions();
-        line.width(4f).color(R.color.colorPrimary);
+        line.width(4f).color(R.color.color_select);
         LatLngBounds.Builder latLngBuilder = new LatLngBounds.Builder();
         for (int i = 0; i < places.size(); i++) {
             if (i == 0) {
@@ -558,133 +570,69 @@ public class MainActivity extends AppCompatActivity implements latLong, Retrofit
         }
     }
 
-    public void setPreCoordinates(){
+    public void setPreCoordinates() {
         pls.clear();
         coordinatesMap.clear();
         pls.add(new LatLng(latti, longi));//0
         setCoordinates();
-        pls.add(new LatLng(navLatti,navLongi));//6
+        pls.add(new LatLng(navLatti, navLongi));//6
         for (int i = 0; i < pls.size(); i++) {
-            coordinatesMap.put(i,pls.get(i));
+            coordinatesMap.put(i, pls.get(i));
         }
         Dijkstra.doNavigation();
         setList();
     }
 
-    @SuppressLint("RestrictedApi")
+
     @Override
     public void onItemClick(int position)  {
+        this.position=position;
+        bottomSheetFragment= new BottomSheetFragment();
+        Bundle bundle = new Bundle();
+
+        bundle.putString("address", modelRecyclerArrayList.get(position).getCountry());
+        bundle.putString("img", modelRecyclerArrayList.get(position).getImgURL());
+        bundle.putString("name", modelRecyclerArrayList.get(position).getName());
+        bundle.putString("site", modelRecyclerArrayList.get(position).getSite());
+        bundle.putString("phone", modelRecyclerArrayList.get(position).getPhone());
+
+        bottomSheetFragment.setArguments(bundle);
+        bottomSheetFragment.show(getSupportFragmentManager(), bottomSheetFragment.getTag());
+
+
+    }
+
+    @Override
+    public void seeee(ArrayList<String> lat, ArrayList<String> longi, ArrayList<ModelRecycler> modelRecyclerArrayList) {
+        phLatti=lat;
+        phLongi=longi;
+        this.modelRecyclerArrayList = modelRecyclerArrayList;
+
+    }
+
+    @SuppressLint("RestrictedApi")
+    @Override
+    public void buttonClick() {
+
+        bottomSheetFragment.dismiss();
         gMap.clear();
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-       // Toast.makeText(this,phLatti.get(1),Toast.LENGTH_SHORT).show();
         navLatti=Double.parseDouble(phLatti.get(position));
         navLongi=Double.parseDouble(phLongi.get(position));
 
-        gMap.addMarker(new MarkerOptions().position(new com.google.android.gms.maps.model.LatLng(navLatti, navLongi)).title("Аптека"));
+
+
+        Marker marker =gMap.addMarker(new MarkerOptions().position(new com.google.android.gms.maps.model.LatLng(navLatti, navLongi)));
+        marker.showInfoWindow();
         com.google.android.gms.maps.model.LatLng ph = new com.google.android.gms.maps.model.LatLng(Double.parseDouble(phLatti.get(position)), Double.parseDouble(phLongi.get(position)));
         gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ph, 17));
         dorectionFab.setVisibility(View.VISIBLE);
     }
-
-    @Override
-    public void seeee(ArrayList<String> lat, ArrayList<String> longi) {
-        phLatti=lat;
-        phLongi=longi;
-    }
 }
 
 
-class Vertex implements Comparable<Vertex> {
-    public final String name;
-    public Edge[] adjacencies;
-    public double minDistance = Double.POSITIVE_INFINITY;
-    public Vertex previous;
-    public Vertex(String argName) { name = argName; }
-    public String toString() { return name; }
-    public int compareTo(Vertex other) {
-        return Double.compare(minDistance, other.minDistance);
-    }
-}
 
-class Edge {
-    public final Vertex target;
-    public final double weight;
-    public Edge(Vertex argTarget, double argWeight){
-        target = argTarget; weight = argWeight;
-    }
-}
 
-class Dijkstra implements Coordinates{
-    static int na;
-    static int[] buildMarker ;
-    public static void computePaths(Vertex source) {
-        source.minDistance = 0.;
-        PriorityQueue<Vertex> vertexQueue = new PriorityQueue<Vertex>();
-        vertexQueue.add(source);
 
-        while (!vertexQueue.isEmpty()) {
-            Vertex u = vertexQueue.poll();
 
-            // Visit each edge exiting u
-            for (Edge e : u.adjacencies)
-            {
-                Vertex v = e.target;
-                double weight = e.weight;
-                double distanceThroughU = u.minDistance + weight;
-                if (distanceThroughU < v.minDistance) {
-                    vertexQueue.remove(v);
-
-                    v.minDistance = distanceThroughU ;
-                    v.previous = u;
-                    vertexQueue.add(v);
-                }
-            }
-        }
-    }
-
-    public static List<Vertex> getShortestPathTo(Vertex target) {
-        List<Vertex> path = new ArrayList<Vertex>();
-        for (Vertex vertex = target; vertex != null; vertex = vertex.previous)
-            path.add(vertex);
-        Collections.reverse(path);
-        return path;
-    }
-
-    public static void doNavigation() {
-        Map<Integer,Vertex> allPath = new HashMap<>();
-        for (int i = 0; i <7; i++) {
-            allPath.put(i,new Vertex(Integer.toString(i)));
-        }
-        // set the edges and weight
-        allPath.get(0).adjacencies = new Edge[]{ new Edge(allPath.get(closePath(0)), 1) };
-        allPath.get(1).adjacencies = new Edge[]{ new Edge(allPath.get(2), 1) };
-        allPath.get(2).adjacencies = new Edge[]{ new Edge(allPath.get(3), 1) };
-        allPath.get(3).adjacencies = new Edge[]{ new Edge(allPath.get(4), 1) };
-        allPath.get(4).adjacencies = new Edge[]{ new Edge(allPath.get(5), 1) };
-        allPath.get(5).adjacencies = new Edge[]{ new Edge(allPath.get(0), 1000) };
-        allPath.get(closePath(6)).adjacencies = new Edge[]{ new Edge(allPath.get(6), 1) };
-        allPath.get(6).adjacencies = new Edge[]{ new Edge(allPath.get(0), 1000) };
-        computePaths(allPath.get(0));// run Dijkstra
-        List<Vertex> path = getShortestPathTo(allPath.get(6));
-        buildMarker= new int[path.size()];
-        for (int i = 0; i < path.size(); i++) {
-            buildMarker[i]=Integer.parseInt(path.get(i).name);
-        }
-    }
-
-    public static int closePath(int key){
-        LatLng thiss =coordinatesMap.get(key);
-        double d=11110,buff=10000;
-        int bufInt=0;
-        for (int i = 1; i <coordinatesMap.size()-1 ; i++) {
-            LatLng next = coordinatesMap.get(i);
-            d=Math.sqrt((next.latitude-thiss.latitude)* (next.latitude-thiss.latitude)+ (next.longitude-thiss.longitude)* (next.longitude-thiss.longitude));
-            if(d<buff){
-                buff=d;
-                bufInt=i;
-            }
-        }
-        return bufInt;
-    }
-}
 
